@@ -1,4 +1,4 @@
-// miniblip led matrix demo
+//Código para la  #hackminiblip 
 
 #include "mbed.h"
 #include "neopixel.h"
@@ -6,24 +6,28 @@
 // Matrix led output pin
 #define DATA_PIN P0_9
 
+#define ANALOG_POTENTIOMETER P0_22
+AnalogIn   ain(ANALOG_POTENTIOMETER);
 
-struct Position{
-    int x;
-    int y;
-};
+void wait_potenciometro(int tiempo){
+        // Rainbow delay
+        float pot = ain.read();
+        wait_ms(tiempo*pot);
+}
 
-void fill_pixel(neopixel::Pixel buffer[25], Position coor, int red, int green, int blue){
+void fill_pixel(neopixel::Pixel buffer[25], int x, int y, int red, int green, int blue){
     
-    if(coor.x<0) coor.x=0;
-    if(coor.x>4) coor.x=4;
-    if(coor.y<0) coor.y=0;
-    if(coor.y>4) coor.y=4;
+    if(x<0) x=0;
+    if(x>4) x=4;
+    if(y<0) y=0;
+    if(y>4) y=4;
        
 
-    int posicion=coor.x+coor.y*5;
+    int posicion=x+y*5;
     buffer[posicion].red=red;
     buffer[posicion].green=green;
     buffer[posicion].blue=blue;
+    
 }
 
 void void_matrix(neopixel::Pixel aux[25], int tam=25){
@@ -35,18 +39,12 @@ void void_matrix(neopixel::Pixel aux[25], int tam=25){
     }
 }
 
-void void_matrix(neopixel::Pixel aux[25], int tam=25){
-    
-    for(int i=0;i<tam;i++){
-        aux[i].red=0;
-        aux[i].green=0;
-        aux[i].blue=0;
-    }
-}
-
-//r: intensidadRojo
-//g: intensidadVerde
-//b: intensidadAzul
+/* Genera la codificación de caracteres para imprimirlos en una matriz 5x5 (dibujado).         
+Uso: 
+    neopixel::Pixel letra[25];
+    generaLetra(letra, 'a', 30, 0 , 0 );            
+    array.update(letra, 25);
+*/
 void generaLetra(neopixel::Pixel vector[], char letra, int red, int green, int blue){
 
     /*
@@ -67,9 +65,8 @@ void generaLetra(neopixel::Pixel vector[], char letra, int red, int green, int b
     unsigned char l[5]={0xF8, 0x80, 0x80, 0x80, 0x80};
     unsigned char m[5]={0x88, 0x88, 0xA8, 0xD8, 0x88};
     unsigned char n[5]={0x98, 0xA8, 0xA8, 0xA8, 0xC8};
-    unsigned char gn[5]={0x98, 0xA8, 0xA8, 0xA8, 0xC8};         // es la ñ
     unsigned char o[5]={0x70, 0x88, 0x88, 0x88, 0x70};
-    unsigned char p[5]={0x80, 0x80, 0x78, 0x88, 0x78};
+    unsigned char p[5]={0x80, 0x80, 0xF0, 0x88, 0xF0};
     unsigned char q[5]={0x78, 0x90, 0x90, 0x90, 0x60};
     unsigned char r[5]={0x88, 0x90, 0xF0, 0x88, 0xF0};    
     unsigned char s[5]={0xF0, 0x8,  0x70, 0x80, 0x78};
@@ -79,60 +76,48 @@ void generaLetra(neopixel::Pixel vector[], char letra, int red, int green, int b
     unsigned char w[5]={0x88,0xD8,0xA8,0x88,0x88};
     unsigned char x[5]={0x88,0x50,0x20,0x50,0x88};
     unsigned char y[5]={0x20,0x20,0x70,0x88,0x88};
-<<<<<<< HEAD
     unsigned char z[5]={0xF8,0x80,0x70,0x8,0xF8};
-        
-    
-    //unsigned char l0[0]=
-    
-        
-    //Montamos un vector de vectores:
-    unsigned char *vectorPunteros []={a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z};
-            
-    //Con la letra recibida le restamos 26 y tenemos la posicion del vector.                        
-    //Para moverlo por los vectores.  
-    unsigned char *puntero; 
-    if (letra==32) //Se trata de un espacio         
+    //"l" de literal
+    unsigned char l0[5]={0x70, 0xC8, 0xA8, 0x98, 0x70};
+    unsigned char l1[5]={0x70, 0x20, 0x20, 0x60, 0x20};    
+    unsigned char l2[5]={0xF8, 0x80, 0x70, 0x8,  0xF0};    
+    unsigned char l3[5]={0xF0, 0x8,  0x30, 0x8,  0xF0};
+    unsigned char l4[5]={0x8,  0x8,  0x78, 0x88, 0x88};
+    unsigned char l5[5]={0xF0, 0x8,  0xF0, 0x80, 0xF8};
+    unsigned char l6[5]={0x70, 0x88, 0xF0, 0x80, 0x78};
+    unsigned char l7[5]={0x10, 0x10, 0x10, 0x8,  0xF8};
+    unsigned char l8[5]={0x70, 0x88, 0x70, 0x88, 0x70};
+    unsigned char l9[5]={0x30, 0x8,  0x78, 0x88, 0x70}; 
+                                        
+    //Montamos un vector de punteros a los vectores de letras.
+    unsigned char *vectorLetras  []={a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z};
+    //Hacemos lo mismo para los números.
+    unsigned char *vectorNumeros []={l0, l1, l2, l3, l4, l5, l6, l7, l8, l9};
+                              
+    //Creamos un puntero para moverlo por los vectores.
+    unsigned char *puntero;
+     
+    //Según el caracter que nos entre por la función haremos que el puntero apunte a un lugar o a otro.     
+    if (letra==' ') //Se trata de un espacio         
         puntero=espacio;
-    else              
+    else if (letra>='0' && letra<='9') //El 0 es el 48 y el 57 el 9 en ASCII        
+        puntero=vectorNumeros[(letra-'0')];    
+    else             
         //a= al valor 97
-        puntero=vectorPunteros[(letra-'a')];
-    
-        
-=======
-    unsigned char z[5]={0xF8,0x80,0x70,0x8,0xF8};       
-    //unsigned char l0[0]=                      tuvxy
-    
-        
-    //Montamos un vector de vectores:
-    unsigned char *vectorPunteros []={a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z};
+        puntero=vectorLetras[(letra-'a')];
             
-    //Con la letra recibida le restamos 26 y tenemos la posicion del vector.                        
-    //Para moverlo por los vectores.  
-    unsigned char *puntero; 
-    if (letra==' ') //Se trata de un espacio 
-        puntero=espacio;
-    else              
-        puntero=vectorPunteros[(letra-'a')];
-    
-    Position coor;
->>>>>>> e00a927e23cd16b5feaf7622ce1de8ee21d966a0
             //Vamos a recorrer todo el vector de bytes
             for(int i=0; i<5; i++){
                 
                 unsigned char elemento = puntero[i];
+                //Creamos una máscara que será un bit a uno seguido de todo ceros.
                 unsigned int mask=0x80;
-                //Nos movemos por 5 bits de los 8
+                //Nos movemos por 5 bits de los 8 (los otros tres son 0 y no necesitamos evaluarlos, no contienen información relevante)
                 for(int x=0; x<5; x++){
+                    //Aplicamos la operacion and logica (solo cuando 1&1=1) haciendo que se rellene ese led en el vector con el color pasado.
                     if (elemento & mask)
-<<<<<<< HEAD
                         fill_pixel(vector, x,i, red, green, blue);                                                                
-=======
-                        coor.x=x;
-                        coor.y=i;
-                        fill_pixel(vector, coor, red, green, blue);                                                                
->>>>>>> e00a927e23cd16b5feaf7622ce1de8ee21d966a0
-                    //Desplazamos 1 bit
+                    //Desplazamos 1 bit de la máscara para que evalue "and" en la siguiente posición.
                     mask >>=1;
                 }                
             }          
@@ -143,46 +128,22 @@ void iluminaTexto(char cadena[], neopixel::PixelArray array){
        //Creamos un vector de pixeles.
        neopixel::Pixel letra[25];
         //Inicializamos el vector a 0
-<<<<<<< HEAD
         void_matrix(letra);
-        /*
-        for(int i=0; i<25; i++){
-            letra[i].red=0;
-            letra[i].blue=0;
-            letra[i].green=0;            
-        }*/
-=======
-            void_matrix(letra);
->>>>>>> e00a927e23cd16b5feaf7622ce1de8ee21d966a0
-        
         for(int i=0; i<strlen(cadena); i++){
             //Generamos la letra en el vector letra        
             generaLetra(letra, cadena[i], 30, 0 , 0 );
             //Iluminamos la matriz
             array.update(letra, 25);
-            //Esperamos un seg
-<<<<<<< HEAD
-            wait_ms(300); 
-            //Reseteamos la matriz
+            //Usamos la función wait_potenciometro a la que le pasamos un valor por defecto.
+            wait_potenciometro(1000); 
+            //Reseteamos la ltra (es un vector, seteando todos los valore a 0)
             void_matrix(letra);
-            /*
-            for(int j=0; j<25; j++){
-                letra[j].red=0;
-                letra[j].blue=0;
-                letra[j].green=0;            
-            }
-            */
-=======
-            wait_ms(1000); 
-            //Reseteamos la matriz
-            void_matrix(letra);
->>>>>>> e00a927e23cd16b5feaf7622ce1de8ee21d966a0
             //Iluminamos la matriz a 0 (no la iluminamos = "la apagamos")
             array.update(letra, 25);
-            //Esperamos otro segundo.                                    
-            wait_ms(30);   
+            //Hacemos un wait condicional del valor del potenciometro otra vez.                                  
+            wait_potenciometro(300);   
         }
-        wait_ms(600);
+        wait_potenciometro(600);
         
         
 }    
@@ -196,9 +157,12 @@ int main()
     //Se está creando un objeto de tipo PixelArray y se está nombrando como array a la que se le está pasando DATA_PIN
     neopixel::PixelArray array(DATA_PIN); 
     
-    char greeting[] = "abcdefghijklmnopqrstuvwxyz";
+    //Usamos un vector de char para introducir el texto.
+    char todo[] = "abcdefghijakmlopqrstuvwxyz0123456789";
+    char texto[]= "hacking miniblip";
 
     while (1) {        
-        iluminaTexto(greeting, array);
+        //Llamada en bucle a la función.
+        iluminaTexto(texto, array);
     }
 }
